@@ -157,6 +157,79 @@ router.post('/add-post', authMiddleware, async (req, res) => {
   }
 });
 
+/** 
+ * GET /
+ * Admin - Create New Post
+*/
+router.get('/edit-post/:id', authMiddleware, async (req, res) => {
+  try {
+    
+    const locals = {
+      title: 'Add Post',
+      description: "Simple Blog created with NodeJs, Express & MongoDb." 
+    };
+
+    const data = await Post.findOne({ _id: req.params.id});
+
+    res.render('admin/edit-post', {
+      data,
+      locals,
+      layout: adminLayout
+    })
+
+
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+
+
+/** 
+ * PUT /
+ * Admin - Create New Post
+*/
+router.put('/edit-post/:id', authMiddleware, async (req, res) => {
+  try {
+    await Post.findByIdAndUpdate(req.params.id, {
+      title: req.body.title,
+      body: req.body.body,
+      updatedAt: Date.now()
+    });
+
+    res.redirect(`/edit-post/${req.params.id}`);
+
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/** 
+ * DELETE /
+ * Admin - Delete Post
+*/
+router.delete('/delete-post/:id', authMiddleware, async (req, res) => {
+
+  try{
+    await Post.deleteOne({ _id: req.params.id});
+    res.redirect('/dashboard');
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+
+/** 
+ * GET /
+ * Admin - LOGOUT
+*/
+router.get('/logout', (req, res) => {
+  res.clearCookie('token');
+  // res.json({ message: 'Logout successful'});
+  res.redirect('/');
+});
+
+
 
 
 /** 
@@ -164,26 +237,26 @@ router.post('/add-post', authMiddleware, async (req, res) => {
  * Admin -  Register
 */
 
-router.post('/register', async (req, res) => {
-  try {
-    const { username, password} = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+// router.post('/register', async (req, res) => {
+//   try {
+//     const { username, password} = req.body;
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-      const user = await User.create({ username, password:hashedPassword });
-      res.status(201).json({ message: 'User Created', user });
-    } catch (error) {
-      if(error.code === 11000) {
-        res.status(409).json({ message: 'User already exists'});
-      }
-      res.status(500).json({ message: 'Inernal server error' })
-    }
+//     try {
+//       const user = await User.create({ username, password:hashedPassword });
+//       res.status(201).json({ message: 'User Created', user });
+//     } catch (error) {
+//       if(error.code === 11000) {
+//         res.status(409).json({ message: 'User already exists'});
+//       }
+//       res.status(500).json({ message: 'Inernal server error' })
+//     }
 
-  } catch (error) {
-    console.log(error);
-  }
+//   } catch (error) {
+//     console.log(error);
+//   }
 
-});
+// });
   
 
 
